@@ -14,3 +14,15 @@ export const resolve = (input: number): Set<PlaneDefeat> => {
   }
   return result;
 };
+
+export const checkValid = (attack: number, defend: number, additional: number): boolean => {
+  const options = resolve(attack);
+
+  for (const option of options) {
+    if (option.beats === defend && option.with === additional) {
+      return true;
+    }
+  }
+
+  return false;
+};
