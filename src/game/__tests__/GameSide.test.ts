@@ -31,6 +31,38 @@ describe('GameSide', () => {
     });
   });
 
+  describe('discardFromHand', () => {
+    it('should remove the cards from the hand', () => {
+      const side = new GameSide();
+      const card1 = new Card(1);
+      const card2 = new Card(2);
+      side.hand = [card1, card2];
+      side.discardFromHand([card1, card2]);
+      expect(side.hand).not.toContain(card1);
+      expect(side.hand).not.toContain(card2);
+    });
+
+    it('should draw back to 3', () => {
+      const side = new GameSide();
+      const card1 = new Card(1);
+      const card2 = new Card(2);
+      side.hand = [card1, card2];
+      side.discardFromHand([card1, card2]);
+      expect(side.hand).toHaveLength(3);
+    });
+
+    it('should throw if attempting to discard a card not in hand', () => {
+      const side = new GameSide();
+      const card1 = new Card(1);
+      const card2 = new Card(2);
+      const card3 = new Card(3);
+      side.hand = [card1, card2];
+      expect(() => {
+        side.discardFromHand([card3]);
+      }).toThrow(new InvalidMoveError("Can't discard, Card(3) not in hand"));
+    });
+  });
+
   describe('playToSlot', () => {
     it('should place the card in the specified slot', () => {
       const side = new GameSide();
@@ -62,6 +94,40 @@ describe('GameSide', () => {
       expect(() => {
         side.playToSlot(0, card);
       }).toThrow(new InvalidMoveError("Can't play Card(-1), not in hand"));
+    });
+  });
+
+  describe('removeFromSlots', () => {
+    it('should remove the cards from slots', () => {
+      const side = new GameSide();
+      const card1 = new Card(1);
+      const card2 = new Card(2);
+      const card3 = new Card(3);
+      side.slots = [card1, card2, card3, null];
+      side.removeFromSlots([card1, card2]);
+      expect(side.slots).toEqual([null, null, card3, null]);
+    });
+
+    it('should add removed cards to discard pile', () => {
+      const side = new GameSide();
+      const card1 = new Card(1);
+      const card2 = new Card(2);
+      const card3 = new Card(3);
+      side.slots = [card1, card2, card3, null];
+      side.removeFromSlots([card1, card2]);
+      expect(side.discardPile).toEqual([card1, card2]);
+    });
+
+    it('should throw if card not in slot', () => {
+      const side = new GameSide();
+      const card1 = new Card(1);
+      const card2 = new Card(2);
+      const card3 = new Card(3);
+      const card4 = new Card(4);
+      side.slots = [card1, card2, card3, null];
+      expect(() => {
+        side.removeFromSlots([card4]);
+      }).toThrow(new InvalidMoveError("Can't remove, Card(4) not in a slot"));
     });
   });
 

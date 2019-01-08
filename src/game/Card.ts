@@ -4,3 +4,9 @@ export default class Card {
     return `Card(${this.value})`;
   }
 }
+
+export enum FaceCards {
+  Jack = 11,
+  Queen = 12,
+  King = 13,
+}

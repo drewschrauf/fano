@@ -4,7 +4,7 @@ import tail from 'lodash/tail';
 import slice from 'lodash/slice';
 import includes from 'lodash/includes';
 
-import Card from './Card';
+import Card, { FaceCards } from './Card';
 import { InvalidMoveError } from './errors';
 
 export default class GameSide {
@@ -15,7 +15,7 @@ export default class GameSide {
   public slots: (Card | null)[] = [null, null, null, null];
 
   constructor() {
-    this.rank = new Card(11);
+    this.rank = new Card(FaceCards.Jack);
     this.drawPile = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(value => new Card(value));
     this.shuffle();
     this.drawHand();
@@ -43,6 +43,20 @@ export default class GameSide {
     }
   }
 
+  private setSlot(slot: number, to: Card | null) {
+    this.slots = [...slice(this.slots, 0, slot), to, ...slice(this.slots, slot + 1)];
+  }
+
+  public discardFromHand(cards: Card[]) {
+    for (const card of cards) {
+      if (!includes(this.hand, card)) {
+        throw new InvalidMoveError(`Can't discard, ${card} not in hand`);
+      }
+      this.hand = this.hand.filter(handCard => handCard !== card);
+    }
+    this.drawHand();
+  }
+
   public playToSlot(slot: number, card: Card) {
     if (!includes(this.hand, card)) {
       throw new InvalidMoveError(`Can't play ${card}, not in hand`);
@@ -53,7 +67,18 @@ export default class GameSide {
     if (existingCard) {
       this.discardPile = [...this.discardPile, existingCard];
     }
-    this.slots = [...slice(this.slots, 0, slot), card, ...slice(this.slots, slot + 1)];
+    this.setSlot(slot, card);
+  }
+
+  public removeFromSlots(cards: Card[]) {
+    for (const card of cards) {
+      if (!includes(this.slots, card)) {
+        throw new InvalidMoveError(`Can't remove, ${card} not in a slot`);
+      }
+      const slot = this.slots.indexOf(card);
+      this.setSlot(slot, null);
+      this.discardPile = [...this.discardPile, card];
+    }
   }
 
   public combine(target: Card, other: Card, to: Card, keep: Card) {
@@ -79,7 +104,7 @@ export default class GameSide {
     const otherSlot = this.slots.indexOf(other);
     this.discardPile = [...this.discardPile, discard];
     this.hand = [...this.hand, keep];
-    this.slots = [...slice(this.slots, 0, targetSlot), to, ...slice(this.slots, targetSlot + 1)];
-    this.slots = [...slice(this.slots, 0, otherSlot), null, ...slice(this.slots, otherSlot + 1)];
+    this.setSlot(targetSlot, to);
+    this.setSlot(otherSlot, null);
   }
 }

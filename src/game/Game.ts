@@ -5,7 +5,7 @@ import Card from './Card';
 import { InvalidMoveError } from './errors';
 
 export default class Game {
-  players: GameSide[] = [];
+  public players: GameSide[] = [];
   public playerTurn = 0;
 
   constructor(playerCount: number) {

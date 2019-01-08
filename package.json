@@ -6,6 +6,7 @@
   "author": "Drew Schrauf <andrew.schrauf@gmail.com>",
   "license": "MIT",
   "scripts": {
+    "lint": "eslint --ext ts,tsx src",
     "test": "jest"
   },
   "devDependencies": {
