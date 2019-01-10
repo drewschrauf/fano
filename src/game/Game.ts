@@ -18,7 +18,7 @@ export default class Game {
 
   public playToSlot(player: number, slot: number, card: Card) {
     if (player !== this.playerTurn) {
-      throw new InvalidMoveError(`It is not player ${player}'s turn`);
+      throw new InvalidMoveError(`Can't play, it is not player ${player}'s turn`);
     }
     this.players[this.playerTurn].playToSlot(slot, card);
   }
@@ -45,5 +45,13 @@ export default class Game {
     this.players[attackingPlayer].removeFromSlots([attackingSlotCard]);
     this.players[attackingPlayer].playToSlot(slot, attackingHandCard);
     this.players[defendingPlayer].removeFromSlots([defendingSlotCard]);
+  }
+
+  public discardFromHand(player: number, cards: Card[]) {
+    if (player !== this.playerTurn) {
+      throw new InvalidMoveError(`Can't discard, it is not player ${player}'s turn`);
+    }
+    this.players[player].discardFromHand(cards);
+    this.playerTurn = (this.playerTurn + 1) % this.players.length;
   }
 }

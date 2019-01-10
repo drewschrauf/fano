@@ -65,4 +65,34 @@ describe('Game', () => {
       );
     });
   });
+
+  describe('discardFromHand', () => {
+    it('should invoke discardFromHand for the current player', () => {
+      const game = new Game(2);
+      game.players[0].discardFromHand = jest.fn();
+
+      const discardedCards = [new Card(1), new Card(2)];
+      game.discardFromHand(0, discardedCards);
+
+      expect(game.players[0].discardFromHand).toHaveBeenCalledWith(discardedCards);
+    });
+
+    it('should increment to the next player', () => {
+      const game = new Game(2);
+      game.playerTurn = 1;
+      game.players[1].discardFromHand = jest.fn();
+
+      game.discardFromHand(1, [new Card(1), new Card(2)]);
+
+      expect(game.playerTurn).toEqual(0);
+    });
+
+    it('should throw if the player is not the current player', () => {
+      const game = new Game(2);
+
+      expect(() => {
+        game.discardFromHand(1, [new Card(1), new Card(2)]);
+      }).toThrow(new InvalidMoveError("Can't discard, it is not player 1's turn"));
+    });
+  });
 });
